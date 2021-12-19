@@ -1,12 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SnakeMovement : MonoBehaviour
 {
     [SerializeField] private List<Transform> _parts;
     [SerializeField] private float _partDistance;
     [SerializeField] private GameObject _partsPrefab;
+
+    public Text amountText;
+    private int amountParts;
 
     [Range(0, 4), SerializeField] private float _speed;
     [Range(0, 4), SerializeField] private float lrspeed;
@@ -53,14 +57,30 @@ public class SnakeMovement : MonoBehaviour
             transform.Translate(Vector3.right * lrspeed * Time.deltaTime);
     }
 
+    
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Food")
         {
-            Destroy(other.gameObject);
-            GameObject part = Instantiate(_partsPrefab);
-            _parts.Add(part.transform);
+            amountParts = Food.amountFood;
+            amountText.text = amountParts.ToString();
+
+            for (int i = 0; i < amountParts; i++)
+            {
+                Destroy(other.gameObject);
+                int index = gameObject.transform.childCount;
+                GameObject part = Instantiate(_partsPrefab);
+                _parts.Add(part.transform);
+            }
+
+            
         }
+
+        
     }
+
+    
+    
 
 }
