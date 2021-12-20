@@ -11,6 +11,7 @@ public class SnakeMovement : MonoBehaviour
 
     public Text amountText;
     private int amountParts;
+    public Rigidbody Rigidbody;
 
     [Range(0, 4), SerializeField] private float _speed;
     [Range(0, 4), SerializeField] private float lrspeed;
@@ -80,7 +81,21 @@ public class SnakeMovement : MonoBehaviour
         
     }
 
-    
-    
+    public void ReachFinish()
+    {
+        Game.OnPlayerReachFinish();
+        Rigidbody.velocity = Vector3.zero;
+    }
+    internal void Die()
+    {
+        Game.OnPlayerDied();
+        Rigidbody.velocity = Vector3.zero;
+    }
+
+
+    private Game Game;
+
+
+
 
 }

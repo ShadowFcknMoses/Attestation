@@ -8,11 +8,16 @@ public class Cube : MonoBehaviour
     public Text amountText;
 
     public static int amountCube;
-    
+    private Color color;
+    private SnakeMovement snakeMovement;
+
     private void Start()
     {
         SetAmount();
+        
     }
+
+    
 
    
     public void SetAmount()
@@ -24,13 +29,23 @@ public class Cube : MonoBehaviour
             gameObject.SetActive(false);
         }
 
-        SetAmoungText();        
+        SetAmoungText();
     }
 
     public void SetAmoungText()
     {
         amountText.text = amountCube.ToString();
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!collision.collider.TryGetComponent(out SnakeMovement snake)) return;
+        if (collision.gameObject.tag == "sn")
+        {
+            snake.Die();
+
+
+        }
+    }
     
-   
 }
