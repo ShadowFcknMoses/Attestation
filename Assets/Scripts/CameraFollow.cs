@@ -1,27 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public GameObject Snake;
-    public Vector3 RoadToCameraOffset;
-    public float Speed;
+    public Transform Snake;
 
-    private float _xSnake;
-    private float _zSnake;
-    private float _ySnake;
-
-    void Update()
+    private Vector3 offset;
+    
+    void Start()
     {
-        if (Snake.transform.position == null) return;
+        offset = transform.position - Snake.transform.position;
+    }
 
-        _xSnake = Snake.transform.position.x + RoadToCameraOffset.x;
-        _zSnake = Snake.transform.position.z + RoadToCameraOffset.z;
-        _ySnake = Snake.transform.position.y + RoadToCameraOffset.y;
-
-        transform.position = new Vector3(15.30671f, _ySnake, _zSnake);
-
-        
+    private void LateUpdate()
+    {
+        transform.position = new Vector3(0, Snake.position.y + offset.y, Snake.position.z + offset.z);
     }
 }
