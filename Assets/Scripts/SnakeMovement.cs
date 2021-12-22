@@ -1,101 +1,91 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
+using System;
 
 public class SnakeMovement : MonoBehaviour
 {
-    [SerializeField] private List<Transform> _parts;
-    [SerializeField] private float _partDistance;
-    [SerializeField] private GameObject _partsPrefab;
+    public float ForwardSpeed; 
+    public float Sensitivity;
 
-    public Text amountText;
-    private int amountParts;
-    public Rigidbody Rigidbody;
+    public static int Length=4;
 
-    [Range(0, 4), SerializeField] private float _speed;
-    [Range(0, 4), SerializeField] private float lrspeed;
+    public TextMeshPro PointsText;
 
+    public ParticleSystem ParticleSystem;
 
+    private Camera _camera;
+    private Rigidbody _rigidbody;
+    public static SnakeTail _componentSnakeTail;
 
-    private void Update()
+    private Vector3 _touchLastPosition;
+    private float _sidewaysSpeed;
+
+    public Game Game;
+    public Sound Sound;
+    public AudioClip SoundCollisionOnBlock;
+
+    void Start()
     {
-        MoveHead(_speed);
-        MoveHorisontal();
-        MoveTail();
+        Length = 4;
+        _camera = Camera.main;
+        _rigidbody = GetComponent<Rigidbody>();
+        _componentSnakeTail = GetComponent<SnakeTail>();
+
+        for (int i = 1; i < Length; i++) _componentSnakeTail.AddBody();
+        PointsText.SetText(Length.ToString());
     }
 
-    private void MoveHead(float speed)
+    void Update()
     {
-        transform.position = transform.position + transform.forward * speed * Time.deltaTime;
-    }
-    
-    private void MoveTail()
-    {
-        float Dist = Mathf.Sqrt(_partDistance);
-        Vector3 prevPos = transform.position;
+        if (Input.GetMouseButtonDown(0))
+            _touchLastPosition = _camera.ScreenToViewportPoint(Input.mousePosition);
+        
+        else if (Input.GetMouseButtonUp(0))
+            _sidewaysSpeed = 0;
 
-        foreach (var part in _parts)
+        else if (Input.GetMouseButton(0))
         {
-            if ((part.position - prevPos).sqrMagnitude > Dist)
-            {
-                Vector3 currentPartPosition = part.position;
-                part.position = prevPos;
-                prevPos = currentPartPosition;
-            }
-            else
-            {
-                break;
-            }
+            Vector3 delta = (Vector3)_camera.ScreenToViewportPoint(Input.mousePosition) - _touchLastPosition;
+            _sidewaysSpeed += delta.x * Sensitivity;
+            _touchLastPosition = _camera.ScreenToViewportPoint(Input.mousePosition);
         }
+
+        PointsText.SetText(Length.ToString());
     }
 
-    private void MoveHorisontal()
+    private void FixedUpdate()
     {
-        if (Input.GetKey(KeyCode.A))
-            transform.Translate(Vector3.left * lrspeed * Time.deltaTime);
-        if (Input.GetKey(KeyCode.D))
-            transform.Translate(Vector3.right * lrspeed * Time.deltaTime);
+        if (Mathf.Abs(_sidewaysSpeed) > 4) _sidewaysSpeed = 4 * Mathf.Sign(_sidewaysSpeed);
+        _rigidbody.velocity = new Vector3(_sidewaysSpeed * 10, 0, ForwardSpeed);
+        _sidewaysSpeed = 0;
     }
 
-    
+    public void Die()
+    {
+        Game.OnPlayerDied();
+        _rigidbody.velocity = Vector3.zero;
+        Sound.MusicOff();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Food")
+        if (other.gameObject.tag == "Block")
         {
-            amountParts = Food.amountFood;
-            amountText.text = amountParts.ToString();
-
-            for (int i = 0; i < amountParts; i++)
-            {
-                Destroy(other.gameObject);
-                int index = gameObject.transform.childCount;
-                GameObject part = Instantiate(_partsPrefab);
-                _parts.Add(part.transform);
-            }
-
-            
+            ParticleSystem.Play();
+            var audio = GetComponent<AudioSource>();
+            audio.PlayOneShot(SoundCollisionOnBlock);
         }
-
-        
+ 
+        if (Length == 0)
+        {
+            Die();
+        }
     }
 
     public void ReachFinish()
     {
-        Game.OnPlayerReachFinish();
-        Rigidbody.velocity = Vector3.zero;
+        Game.OnPlayerReachedFinish();
+        _rigidbody.velocity = Vector3.zero;
+        Sound.MusicOff();
     }
-    internal void Die()
-    {
-        Game.OnPlayerDied();
-        Rigidbody.velocity = Vector3.zero;
-    }
-
-
-    private Game Game;
-
-
-
-
 }

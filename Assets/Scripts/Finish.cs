@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Finish : MonoBehaviour
 {
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collider)
     {
-        if (!collision.collider.TryGetComponent(out SnakeMovement snake)) return;
+        if (!collider.TryGetComponent(out SnakeMovement snake)) return;
         snake.ReachFinish();
     }
 }

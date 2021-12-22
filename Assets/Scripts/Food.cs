@@ -1,20 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
+using Random = UnityEngine.Random;
 
 public class Food : MonoBehaviour
 {
-    public Text amountText;
+    private int _foodPoints;
+
+    public TextMeshPro foodText;
+    public AudioClip FoodSound;
     
-
-    public static int amountFood;
-
-    private void OnEnable()
+    void Start()
     {
-        amountFood = Random.Range(1, 10);
-        amountText.text = amountFood.ToString();
+        _foodPoints = Random.Range(1, 15);
+        foodText.SetText(_foodPoints.ToString());
     }
 
-    
+    private void OnTriggerEnter(Collider other)
+    {
+        for (int i = 0; i < _foodPoints; i++)
+        {
+            SnakeMovement.Length++;
+            SnakeMovement._componentSnakeTail.AddBody();
+        }
+
+        Destroy(gameObject);
+    }
 }

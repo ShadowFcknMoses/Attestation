@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
-    public LevelController Controls;
+    public SnakeMovement Controls;
 
     public enum State
     {
@@ -14,32 +12,30 @@ public class Game : MonoBehaviour
         Loss,
     }
 
-    public State CurrentState { get; private set; }
+    public State CurrentState { get;  set; }
+    public static object PhysicsSceneExtensions { get;  set; }
 
     public void OnPlayerDied()
     {
-        if (CurrentState != State.Playing) return;
-
+       if (CurrentState != State.Playing) return;
         CurrentState = State.Loss;
         Controls.enabled = false;
-        Debug.Log("Game over!");
-        ReloadLevel();
+        Restart(); 
     }
 
-    public void OnPlayerReachFinish()
+    public void OnPlayerReachedFinish()
     {
         if (CurrentState != State.Playing) return;
 
         CurrentState = State.Won;
         Controls.enabled = false;
         LevelIndex++;
-        Debug.Log("You Won!");
-        ReloadLevel();
+        Finish();
     }
 
     public int LevelIndex
     {
-        get => PlayerPrefs.GetInt(LevelIndexKey, 0);
+        get => PlayerPrefs.GetInt(LevelIndexKey, 1);
         private set
         {
             PlayerPrefs.SetInt(LevelIndexKey, value);
@@ -49,8 +45,13 @@ public class Game : MonoBehaviour
 
     private const string LevelIndexKey = "LevelIndex";
 
-    private void ReloadLevel()
+    private void Restart()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(2);
+    }
+
+    private void Finish()
+    {
+        SceneManager.LoadScene(3);
     }
 }
